@@ -1,11 +1,12 @@
 #include "Personnage.h"
 
-Personnage::Personnage() : m_vie_initiale(15), m_mana_initial(10), m_armure(2)
+Personnage::Personnage() : m_vie_initiale(15), m_mana_initial(10), m_endurance_initiale(20), m_armure(2)
 {
     srand(time(0));
     m_arme = new Arme();
     m_vie             = m_vie_initiale;
     m_mana            = m_mana_initial;
+    m_endurance       = m_endurance_initiale;
     m_posture         = E_DEFENSIF;
     m_force           = 3;
     m_mental          = 3;
@@ -17,36 +18,16 @@ Personnage::Personnage() : m_vie_initiale(15), m_mana_initial(10), m_armure(2)
 
 //--------------------------------------------------------------------------
 
-Personnage::Personnage(string nom) : m_nom(nom), m_vie_initiale(15), m_mana_initial(10), m_armure(2)
+Personnage::Personnage(string nom) : Personnage()
 {
-    srand(time(0));
-    m_arme = new Arme();
-    m_vie             = m_vie_initiale;
-    m_mana            = m_mana_initial;
-    m_posture         = E_DEFENSIF;
-    m_force           = 3;
-    m_mental          = 3;
-    m_social          = 3;
-    m_agilite         = 3;
-    m_resistanceFeu   = 1;
-    m_resistanceFroid = 1;
+    this->setNom(nom);
 }
 
 //--------------------------------------------------------------------------
 
-Personnage::Personnage(string nom, string nomArme, int degatsArme) : m_nom(nom), m_vie_initiale(15), m_mana_initial(10), m_armure(2)
+Personnage::Personnage(string nom, string nomArme, int degatsArme) : Personnage(nom)
 {
-    srand(time(0));
-    m_arme = new Arme(nomArme, degatsArme);
-    m_vie             = m_vie_initiale;
-    m_mana            = m_mana_initial;
-    m_posture         = E_DEFENSIF;
-    m_force           = 3;
-    m_mental          = 3;
-    m_social          = 3;
-    m_agilite         = 3;
-    m_resistanceFeu   = 1;
-    m_resistanceFroid = 1;
+    this->changerArme(nomArme, degatsArme);
 }
 
 //--------------------------------------------------------------------------
@@ -56,6 +37,7 @@ Personnage::Personnage( string nom,
                         int degatsArme,
                         int vie_initiale,
                         int mana_initial,
+                        int endurance_initiale,
                         int armure,
                         string posture,
                         int force,
@@ -64,8 +46,11 @@ Personnage::Personnage( string nom,
                         int agilite,
                         float resistanceFeu,
                         float resistanceFroid
-                      ) : m_nom(nom), m_vie_initiale(vie_initiale), m_vie(vie_initiale), m_mana_initial(mana_initial), m_mana(mana_initial),
-                              m_armure(armure), m_force(force), m_mental(mental), m_social(social), m_agilite(agilite), m_resistanceFeu(resistanceFeu), m_resistanceFroid(resistanceFroid)
+                      ) : m_nom(nom), m_vie_initiale(vie_initiale), m_vie(vie_initiale),
+                              m_mana_initial(mana_initial), m_mana(mana_initial),
+                              m_endurance_initiale(endurance_initiale), m_endurance(endurance_initiale),
+                              m_armure(armure), m_force(force), m_mental(mental), m_social(social),
+                              m_agilite(agilite), m_resistanceFeu(resistanceFeu), m_resistanceFroid(resistanceFroid)
 {
     srand(time(0));
     m_arme = new Arme(nomArme, degatsArme);
@@ -91,13 +76,18 @@ Personnage::Personnage( string nom,
 
 //--------------------------------------------------------------------------
 
-Personnage::Personnage(Personnage* const& personnageACopier): m_vie_initiale(personnageACopier->m_vie), m_mana_initial(personnageACopier->m_mana), m_armure(personnageACopier->m_armure)
+Personnage::Personnage(Personnage* const& personnageACopier):
+        m_vie_initiale(personnageACopier->m_vie_initiale),
+        m_mana_initial(personnageACopier->m_mana_initial),
+        m_endurance_initiale(personnageACopier->m_endurance_initiale),
+        m_armure(personnageACopier->m_armure)
 {
     srand(time(0));
     m_nom        = personnageACopier->m_nom;
     m_arme       = new Arme(*(personnageACopier->m_arme));
     m_vie        = personnageACopier->m_vie        ;
     m_mana       = personnageACopier->m_mana       ;
+    m_endurance  = personnageACopier->m_endurance  ;
     m_posture    = personnageACopier->m_posture    ;
     m_force      = personnageACopier->m_force      ;
     m_mental     = personnageACopier->m_mental     ;
@@ -132,8 +122,10 @@ Personnage& Personnage::operator=(Personnage const& personnageACopier)
         m_nom        = personnageACopier.m_nom;
         m_vie_initiale = personnageACopier.m_vie_initiale;
         m_mana_initial = personnageACopier.m_mana_initial;
+        m_endurance_initiale = personnageACopier.m_endurance_initiale;
         m_vie        = personnageACopier.m_vie        ;
         m_mana       = personnageACopier.m_mana       ;
+        m_endurance  = personnageACopier.m_endurance_initiale;
         m_posture    = personnageACopier.m_posture    ;
         m_force      = personnageACopier.m_force      ;
         m_mental     = personnageACopier.m_mental     ;
@@ -156,8 +148,8 @@ void Personnage::agir(Personnage &cible)
     int choix = 0;
 
     cout << "Que doit faire " << CBOLD << m_nom << CDEFAULT << " ?" << endl;
-    cout << "\t1 - Se servir de " << m_arme->getNom() << endl;
-    cout << "\t2 - Coup de poing" << endl;
+    cout << "\t1 - Se servir de " << m_arme->getNom() << " (-" << ((m_force+m_agilite)/2) << " endu)" << endl;
+    cout << "\t2 - Coup de poing (-2 endu)" << endl;
     cout << "\t3 - Changer de posture" << endl;
     cout << "\t4 - Boire une potion de soin" << endl;
 
@@ -241,6 +233,11 @@ void Personnage::attaquer(Personnage &cible)
 
     ETest strTest;
 
+    if( not this->utiliserEndurance( (m_force + m_agilite) /2) )
+    {
+        return;
+    }
+
     cout << "Ca va toucher ? ";
     strTest = test(m_force, 10);
 
@@ -264,7 +261,11 @@ void Personnage::attaquer(Personnage &cible)
 void Personnage::coupDePoing(Personnage &cible)
 {
     cout << CBOLD << m_nom << CDEFAULT << " essaye de patater " << CBOLD << cible.getNom() << CDEFAULT << " dans la bouche"<< endl;
-    cible.recevoirDegats(m_force, true);
+
+    if(this->utiliserEndurance(2))
+    {
+        cible.recevoirDegats(m_force, true);
+    }
 }
 
 //--------------------------------------------------------------------------
@@ -275,7 +276,12 @@ void Personnage::boirePotionDeVie(int quantitePotion)
 
     if(m_vie > m_vie_initiale)
     {
+        cout << m_nom << " regagne " << ( quantitePotion - (m_vie - m_vie_initiale) ) << " PV (vie maximale atteinte !)" << endl;
         m_vie = m_vie_initiale;
+    }
+    else
+    {
+        cout << m_nom << " regagne " << quantitePotion << " PV" << endl;
     }
 }
 
@@ -318,17 +324,6 @@ bool Personnage::estVivantNoPrint() const
     return (m_vie > 0);
 }
 
-//--------------------------------------------------------------------------
-
-void Personnage::utiliserMana(int mana)
-{
-    m_mana -= mana;
-
-    if(m_mana < 0)
-    {
-        m_mana = 0;
-    }
-}
 
 //--------------------------------------------------------------------------
 
@@ -344,15 +339,80 @@ void Personnage::recupererMana(int mana)
 
 //--------------------------------------------------------------------------
 
+bool Personnage::utiliserMana(int mana)
+{
+    if(m_mana - mana < 0)
+    {
+        cout << CBOLD << m_nom << CDEFAULT << " est a sec de mana. Il faut attendre que ca revienne..." << endl;
+        return false;
+    }
+    else
+    {
+        m_mana -= mana;
+        return true;
+    }
+}
+
+//--------------------------------------------------------------------------
+
+void Personnage::recupererEndurance(int endurance)
+{
+    m_endurance += endurance;
+
+    if(m_endurance > m_endurance_initiale)
+    {
+        m_endurance = m_endurance_initiale;
+    }
+}
+
+//--------------------------------------------------------------------------
+
+bool Personnage::utiliserEndurance(int endurance)
+{
+    if(m_endurance - endurance < 0)
+    {
+        cout << CBOLD << m_nom << CDEFAULT << " n'a plus rien dans le slip. Il doit se reposer..." << endl;
+        return false;
+    }
+    else
+    {
+        m_endurance -= endurance;
+        return true;
+    }
+}
+
+//--------------------------------------------------------------------------
+
+void Personnage::statsBarre(int nbCarres, string couleur) const
+{
+    cout << couleur;
+    for(int i = 0; i < nbCarres; i++)
+    {
+        cout << " ";
+    }
+    cout << CDEFAULT;
+}
+
+//--------------------------------------------------------------------------
+
 void Personnage::afficherEtat() const
 {
     cout << "====================================" << endl;
     cout << CBOLD << "\t\t" << m_nom << CDEFAULT << endl;
-    cout << CRED <<  "Vie  : " << m_vie << CDEFAULT << endl;
-    cout << CBLUE << "Mana : " << m_mana << CDEFAULT << endl;
-    cout << CGREEN;
+
+    cout << CRED <<   "Vie       : " << setfill(' ') << setw(4) << m_vie << CDEFAULT << " ";
+    statsBarre(m_vie, CREDBG);
+    cout << endl;
+
+    cout << CBLUE <<  "Mana      : " << setfill(' ') << setw(4) << m_mana << CDEFAULT << " ";
+    statsBarre(m_mana, CBLUEBG);
+    cout << endl;
+
+    cout << CGREEN << "Endurance : " << setfill(' ') << setw(4) << m_endurance << CDEFAULT << " ";
+    statsBarre(m_endurance, CGREENBG);
+    cout << endl;
+
     m_arme->afficher();
-    cout << CDEFAULT;
     cout << "====================================" << endl;
 
 }

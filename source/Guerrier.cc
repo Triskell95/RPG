@@ -5,6 +5,7 @@ Guerrier::Guerrier() : Personnage()
 {
     setVie(25);
     setMana(10);
+    setEndurance(25);
     changerPosture(E_OFFENSIF);
     setArmure(6);
     setForce(6);
@@ -17,34 +18,16 @@ Guerrier::Guerrier() : Personnage()
 
 //--------------------------------------------------------------------------
 
-Guerrier::Guerrier(string nom) : Personnage(nom)
+Guerrier::Guerrier(string nom) : Guerrier()
 {
-    setVie(25);
-    setMana(10);
-    changerPosture(E_OFFENSIF);
-    setArmure(6);
-    setForce(6);
-    setMental(3);
-    setSocial(3);
-    setAgilite(2);
-    setResistanceFeu(1.2);
-    setResistanceFroid(0.9);
+    this->setNom(nom);
 }
 
 //--------------------------------------------------------------------------
 
-Guerrier::Guerrier(string nom, string nomArme, int degats) : Personnage(nom, nomArme, degats)
+Guerrier::Guerrier(string nom, string nomArme, int degats) : Guerrier(nom)
 {
-    setVie(25);
-    setMana(10);
-    changerPosture(E_OFFENSIF);
-    setArmure(6);
-    setForce(6);
-    setMental(3);
-    setSocial(3);
-    setAgilite(2);
-    setResistanceFeu(1.2);
-    setResistanceFroid(0.9);
+    this->changerArme(nomArme, degats);
 }
 
 //--------------------------------------------------------------------------
@@ -54,6 +37,7 @@ Guerrier::Guerrier(             string nom,
                                 int degatsArme,
                                 int vie_initiale,
                                 int mana_initial,
+                                int endurance_initiale,
                                 int armure,
                                 string posture,
                                 int force,
@@ -62,7 +46,7 @@ Guerrier::Guerrier(             string nom,
                                 int agilite,
                                 float resistanceFeu,
                                 float resistanceFroid
-                      ) : Personnage(nom, nomArme, degatsArme, vie_initiale, mana_initial, armure, posture, force, mental, social, agilite, resistanceFeu, resistanceFroid)
+                      ) : Personnage(nom, nomArme, degatsArme, vie_initiale, mana_initial, endurance_initiale, armure, posture, force, mental, social, agilite, resistanceFeu, resistanceFroid)
 {
 }
 
@@ -87,9 +71,9 @@ void Guerrier::agir(Personnage &cible)
     int choix = 0;
 
     cout << "Que doit faire " << CBOLD << getNom() << CDEFAULT << " ?" << endl;
-    cout << "\t1 - Se servir de " << getArme()->getNom() << endl;
-    cout << "\t2 - Coup de poing" << endl;
-    cout << "\t3 - Frapper comme un sourd au marteau de guerre" << endl;
+    cout << "\t1 - Se servir de " << getArme()->getNom() << " (-" << ((getForce()+getAgilite())/2) << " endu)" << endl;
+    cout << "\t2 - Coup de poing          (-2 endu)" << endl;
+    cout << "\t3 - Frapper comme un sourd" << " (-" << ((getForce()+getAgilite())) << " endu)" << endl;
     cout << "\t4 - Changer de posture" << endl;
     cout << "\t5 - Boire une potion de soin" << endl;
 
@@ -102,7 +86,7 @@ void Guerrier::agir(Personnage &cible)
             break;
 
         case 3:
-            frapperCommeUnSourdAvecUnMarteau(cible);
+            frapperCommeUnSourd(cible);
             break;
 
         case 4:
@@ -128,9 +112,14 @@ void Guerrier::agir(Personnage &cible)
 
 //--------------------------------------------------------------------------
 
-void Guerrier::frapperCommeUnSourdAvecUnMarteau(Personnage &cible) const
+void Guerrier::frapperCommeUnSourd(Personnage &cible)
 {
-    cout << endl << CBOLD << getNom() << CDEFAULT << " frappe " << CBOLD << cible.getNom() << CDEFAULT << " comme un sourd avec un marteau" << endl;
+    cout << endl << CBOLD << getNom() << CDEFAULT << " frappe " << CBOLD << cible.getNom() << CDEFAULT << " comme un sourd" << endl;
+
+    if( not utiliserEndurance( (getForce()+getAgilite()) ) )
+    {
+        return;
+    }
 
     cout << "Ca va toucher ? ";
     ETest strTest = test(getForce(), 10);
@@ -138,6 +127,10 @@ void Guerrier::frapperCommeUnSourdAvecUnMarteau(Personnage &cible) const
     if( strTest == E_SUCCESCRITIQUE or strTest == E_SUCCES )
     {
         cible.recevoirDegats( 3 * getForce(), true );
+    }
+    else if(strTest == E_ECHECCRITIQUE)
+    {
+        recevoirDegats(4, false);
     }
 }
 

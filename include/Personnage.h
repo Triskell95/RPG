@@ -8,8 +8,11 @@
 #include "Arme.h"
 
 #define CRED     "\033[31m"
+#define CREDBG   "\033[41m"
 #define CGREEN   "\033[32m"
+#define CGREENBG "\033[42m"
 #define CBLUE    "\033[34m"
+#define CBLUEBG  "\033[44m"
 #define CDEFAULT "\033[0m"
 #define CBOLD    "\033[1m"
 
@@ -31,6 +34,7 @@ class Personnage
                             int degatsArme,
                             int vie_initiale,
                             int mana_initial,
+                            int endurance_initiale,
                             int armure,
                             string posture,
                             int m_force,
@@ -56,12 +60,16 @@ class Personnage
         void changerPosture(EPosture posture);
 
         void recupererMana(int mana);
-        void utiliserMana(int mana);
+        bool utiliserMana(int mana);
+
+        void recupererEndurance(int endurance);
+        bool utiliserEndurance(int endurance);
 
         void boirePotionDeVie(int quantitePotion);
 
 
         //--- AFFICHAGE ---
+        void statsBarre(int nbCarres, string couleur) const;
         void afficherEtat() const;
         void sePresenter() const;
         void stats() const;
@@ -95,6 +103,12 @@ class Personnage
         }
         void setMana(int mana) {
             m_mana = mana;
+        }
+        int getEndurance() const {
+            return m_endurance;
+        }
+        void setEndurance(int endurance) {
+            m_endurance = endurance;
         }
         int getArmure() const {
             return m_armure;
@@ -149,6 +163,8 @@ class Personnage
         int m_vie;
         int m_mana_initial;
         int m_mana;
+        int m_endurance_initiale;
+        int m_endurance;
         int m_armure;
         Arme *m_arme;
         EPosture m_posture;

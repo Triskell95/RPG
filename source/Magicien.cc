@@ -4,6 +4,7 @@ Magicien::Magicien() : Personnage()
 {
     setVie(15);
     setMana(15);
+    setEndurance(10);
     changerPosture(E_DEFENSIF);
     setArmure(4);
     setForce(2);
@@ -16,34 +17,16 @@ Magicien::Magicien() : Personnage()
 
 //--------------------------------------------------------------------------
 
-Magicien::Magicien(string nom) : Personnage(nom)
+Magicien::Magicien(string nom) : Magicien()
 {
-    setVie(15);
-    setMana(15);
-    changerPosture(E_DEFENSIF);
-    setArmure(4);
-    setForce(2);
-    setMental(6);
-    setSocial(5);
-    setAgilite(3);
-    setResistanceFeu(1.2);
-    setResistanceFroid(0.8);
+    this->setNom(nom);
 }
 
 //--------------------------------------------------------------------------
 
-Magicien::Magicien(string nom, string nomArme, int degats) : Personnage(nom, nomArme, degats)
+Magicien::Magicien(string nom, string nomArme, int degats) : Magicien(nom)
 {
-    setVie(15);
-    setMana(15);
-    changerPosture(E_DEFENSIF);
-    setArmure(4);
-    setForce(2);
-    setMental(6);
-    setSocial(5);
-    setAgilite(3);
-    setResistanceFeu(1.2);
-    setResistanceFroid(0.8);
+    this->changerArme(nomArme, degats);
 }
 
 //--------------------------------------------------------------------------
@@ -53,6 +36,7 @@ Magicien::Magicien(             string nom,
                                 int degatsArme,
                                 int vie_initiale,
                                 int mana_initial,
+                                int endurance_initiale,
                                 int armure,
                                 string posture,
                                 int force,
@@ -61,7 +45,7 @@ Magicien::Magicien(             string nom,
                                 int agilite,
                                 float resistanceFeu,
                                 float resistanceFroid
-                      ) : Personnage(nom, nomArme, degatsArme, vie_initiale, mana_initial, armure, posture, force, mental, social, agilite, resistanceFeu, resistanceFroid)
+                      ) : Personnage(nom, nomArme, degatsArme, vie_initiale, mana_initial, endurance_initiale, armure, posture, force, mental, social, agilite, resistanceFeu, resistanceFroid)
 {
 }
 
@@ -86,11 +70,11 @@ void Magicien::agir(Personnage &cible)
     int choix = 0;
 
     cout << "Que doit faire " << CBOLD << getNom() << CDEFAULT << " ?" << endl;
-    cout << "\t1 - Se servir de " << getArme()->getNom() << endl;
-    cout << "\t2 - Coup de poing" << endl;
-    cout << "\t3 - Boule de feu" << endl;
-    cout << "\t4 - Boule de glace" << endl;
-    cout << "\t5 - Déluge de feu" << endl;
+    cout << "\t1 - Se servir de " << getArme()->getNom() << " (-" << ((getForce()+getAgilite())/2) << " endu)" << endl;
+    cout << "\t2 - Coup de poing  (-2 endu)" << endl;
+    cout << "\t3 - Boule de feu   (-4 mana)" << endl;
+    cout << "\t4 - Boule de glace (-4 mana)" << endl;
+    cout << "\t5 - Déluge de feu  (-8 mana)" << endl;
     cout << "\t6 - Changer de posture" << endl;
     cout << "\t7 - Boire une potion de soin" << endl;
 
@@ -145,13 +129,21 @@ void Magicien::bouleDeFeu(Personnage &cible)
 
         ETest strTest;
 
+        if( not this->utiliserMana(4))
+        {
+            return;
+        }
+
         cout << "Ca va toucher ? ";
         strTest = test(getMental(), 10);
-        utiliserMana(3);
 
         if(strTest == E_SUCCESCRITIQUE or strTest == E_SUCCES )
         {
             cible.recevoirDegats((int)( 2.0 * cible.getResistanceFeu() * ( (float)getMental() ) ), true);
+        }
+        else if(strTest == E_ECHECCRITIQUE)
+        {
+            recevoirDegats(2, false);
         }
     }
     else
@@ -170,13 +162,22 @@ void Magicien::bouleDeGlace(Personnage &cible)
 
         ETest strTest;
 
+        if( not this->utiliserMana(4))
+        {
+            return;
+        }
+
         cout << "Ca va toucher ? ";
         strTest = test(getMental(), 10);
-        utiliserMana(2);
 
         if(strTest == E_SUCCESCRITIQUE or strTest == E_SUCCES )
         {
-            cible.recevoirDegats((int)( 1.5 * cible.getResistanceFeu() * ( (float)getMental() ) ), true);
+            cible.recevoirDegats((int)( 2.0 * cible.getResistanceFroid() * ( (float)getMental() ) ), true);
+            cible.utiliserEndurance(1);
+        }
+        else if(strTest == E_ECHECCRITIQUE)
+        {
+            recevoirDegats(2, false);
         }
     }
     else
@@ -195,14 +196,21 @@ void Magicien::delugeDeFeu(Personnage &cible)
 
         ETest strTest;
 
+        if( not this->utiliserMana(8))
+        {
+            return;
+        }
+
         cout << "Ca va toucher ? ";
         strTest = test(getMental(), 10);
-        utiliserMana(7);
 
         if(strTest == E_SUCCESCRITIQUE or strTest == E_SUCCES )
         {
             cible.recevoirDegats((int)( 3.0 * cible.getResistanceFeu() * ( (float)getMental() ) ), false);
-
+        }
+        else if(strTest == E_ECHECCRITIQUE)
+        {
+            recevoirDegats(4, false);
         }
 
     }

@@ -19,6 +19,7 @@ class Guerrier : public Personnage
                                         int degatsArme,
                                         int vie_initiale,
                                         int mana_initial,
+                                        int endurance_initiale,
                                         int armure,
                                         string posture,
                                         int force,
@@ -32,7 +33,7 @@ class Guerrier : public Personnage
         ~Guerrier();
 
         virtual void agir(Personnage &cible);
-        void frapperCommeUnSourdAvecUnMarteau(Personnage &cible) const;
+        void frapperCommeUnSourd(Personnage &cible);
         void sePresenter() const;
 
         string getClasse() const {

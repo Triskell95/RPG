@@ -16,6 +16,7 @@ class Magicien : public Personnage
                                         int degatsArme,
                                         int vie_initiale,
                                         int mana_initial,
+                                        int endurance_initiale,
                                         int armure,
                                         string posture,
                                         int force,

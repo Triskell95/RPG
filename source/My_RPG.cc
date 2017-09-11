@@ -90,19 +90,49 @@ void fnNouveauTour(vector<Personnage*> listPerso)
 
         if(persoJ2->estVivantNoPrint())
         {
+            cout << "------------------------------------" << endl << endl;
             persoJ2->agir(*persoJ1);
         }
 
-        persoJ1->recupererMana(5);
-        persoJ1->recupererMana(5);
+        persoJ1->recupererMana(3);
+        persoJ2->recupererMana(3);
 
-        cout << endl;
-        persoJ1->afficherEtat();
-        persoJ2->afficherEtat();
+        persoJ1->recupererEndurance(3);
+        persoJ2->recupererEndurance(3);
 
+        if( persoJ1->estVivantNoPrint() and persoJ2->estVivantNoPrint() )
+        {
+            cout << "Fin du tour: chaque joueur recupere 3 points de mana et 3 d'endurance" << endl;
+        }
 
         cin >> dumb;
     }
+
+    persoJ1->afficherEtat();
+    persoJ2->afficherEtat();
+
+    cout << endl << endl;
+    cout << "============================================================" << endl;
+
+    string str1 = "VICTOIRE de ";
+    string str2 = "La famille de ";
+
+    if(persoJ1->estVivantNoPrint())
+    {
+        str1 += persoJ1->getNom();
+        str2 += persoJ2->getNom();
+    }
+    else
+    {
+        str1 += persoJ2->getNom();
+        str2 += persoJ1->getNom();
+    }
+    str1 += " !!!";
+    str2 += " n'a plus qu'a pleurer...";
+
+    cout << setfill(' ') << setw( (60 + str1.length()) /2 ) << str1 << endl << endl;
+    cout << setfill(' ') << setw( (60 + str2.length()) /2 ) << str2 << endl;
+    cout << "============================================================" << endl;
 }
 
 int main() {
@@ -122,7 +152,7 @@ int main() {
     cout << strBanniere << endl;
     cout << endl;
 
-    string filename = "../data/personnages.txt";
+    string filename = "data/personnages.txt";
     ifstream myfile(filename.c_str(), ifstream::in);
     istringstream iss;
 
@@ -161,6 +191,7 @@ int main() {
                 string degatsArme     ;
                 string vie_initiale   ;
                 string mana_initial   ;
+                string endurance_initiale;
                 string armure         ;
                 string posture        ;
                 string force          ;
@@ -171,7 +202,7 @@ int main() {
                 string resistanceFroid;
 
                 //Récupération des attributs
-                if(iss >> nom >> classe >> nomArme >> degatsArme >> vie_initiale >> mana_initial
+                if(iss >> nom >> classe >> nomArme >> degatsArme >> vie_initiale >> mana_initial >> endurance_initiale
                         >> armure >> posture >> force >> mental >> social >> agilite >>
                         resistanceFeu >> resistanceFroid)
                 {
@@ -180,21 +211,21 @@ int main() {
                     if(classe == "Personnage")
                     {
                         perso = new Personnage( nom, nomArme, atoi(degatsArme.c_str()), atoi(vie_initiale.c_str()),
-                                atoi(mana_initial.c_str()), atoi(armure.c_str()), posture.c_str(),
+                                atoi(mana_initial.c_str()), atoi(endurance_initiale.c_str()), atoi(armure.c_str()), posture.c_str(),
                                 atoi(force.c_str()), atoi(mental.c_str()), atoi(social.c_str()), atoi(agilite.c_str()),
                                 atof(resistanceFeu.c_str()), atof(resistanceFroid.c_str()) );
                     }
                     else if(classe == "Guerrier")
                     {
                         perso = new Guerrier( nom, nomArme, atoi(degatsArme.c_str()), atoi(vie_initiale.c_str()),
-                                atoi(mana_initial.c_str()), atoi(armure.c_str()), posture.c_str(),
+                                atoi(mana_initial.c_str()), atoi(endurance_initiale.c_str()), atoi(armure.c_str()), posture.c_str(),
                                 atoi(force.c_str()), atoi(mental.c_str()), atoi(social.c_str()), atoi(agilite.c_str()),
                                 atof(resistanceFeu.c_str()), atof(resistanceFroid.c_str()) );
                     }
                     else if(classe == "Magicien")
                     {
                         perso = new Magicien( nom, nomArme, atoi(degatsArme.c_str()), atoi(vie_initiale.c_str()),
-                                atoi(mana_initial.c_str()), atoi(armure.c_str()), posture.c_str(),
+                                atoi(mana_initial.c_str()), atoi(endurance_initiale.c_str()), atoi(armure.c_str()), posture.c_str(),
                                 atoi(force.c_str()), atoi(mental.c_str()), atoi(social.c_str()), atoi(agilite.c_str()),
                                 atof(resistanceFeu.c_str()), atof(resistanceFroid.c_str()) );
                     }
